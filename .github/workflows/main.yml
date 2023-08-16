@@ -1,0 +1,31 @@
+name: Maven, Nexus, and SonarQube
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build, Deploy, and Analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+
+      - name: Build and Deploy to Nexus
+        run: |
+          mvn clean install deploy -DskipTests \
+            -Dmaven.deploy.skip=true \
+            -DaltDeploymentRepository=nexus::default::https://<nexus-url>/repository/<repository-id> \
+            -Dmaven.site.skip=true \
+            -Dmaven.javadoc.skip=true \
+            -Dmaven.test.skip=true
+        env:
+          MAVEN_CLI_OPTS: -B -V
